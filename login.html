@@ -16,7 +16,7 @@
   <script src="./js/jquery.cookie.js"></script>
   <script>
     if ($.cookie("adminInfo") != null) {
-      $.post("http://127.0.0.1/CarpNovel/back/index", {
+      $.post("http://127.0.0.1/carpNovel/back/index", {
         account: JSON.parse($.cookie("adminInfo")).account,
         password: JSON.parse($.cookie("adminInfo")).password
       },
@@ -59,8 +59,8 @@
         // layer.msg(JSON.stringify(data.field),function(){
         //     location.href='index.html'
         // });
-        console.log(data.field)
-        $.post("http://127.0.0.1/CarpNovel/back/index", { account: data.field.username, password: data.field.password }, function (result) {
+        // console.log(data.field)
+        $.post("http://127.0.0.1/carpNovel/back/index", { account: data.field.username, password: data.field.password }, function (result) {
           if (result != "NoExist") {
             console.log(result)
             // window.sessionStorage.setItem("adminInfo",JSON.stringify(result));
