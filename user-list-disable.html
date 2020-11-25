@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>用户列表</title>
+  <title>欢迎页面-X-admin2.2</title>
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport"
@@ -117,12 +117,12 @@
     findUser(1, user_name, a_ccount);
   });
 </script>
-<!-- 根据条件查询所有用户 -->
+<!-- 根据条件查询所有被禁用用户 -->
 <script>
   function findUser(no, name, ccount) {
     // console.log(no);
     $.ajax({
-      url: `http://127.0.0.1/carpNovel/back/user/findUserAll`,
+      url: `http://127.0.0.1/carpNovel/back/user/findDisableUserAll`,
       data: {
         pageNo: no,      // 页数
         username: name,  // 用户名

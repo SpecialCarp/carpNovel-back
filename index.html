@@ -44,7 +44,8 @@
         </div>
         <ul class="layui-nav right" lay-filter="">
             <li class="layui-nav-item">
-                <a href="javascript:;"><script>document.write(JSON.parse($.cookie("adminInfo")).name)</script></a>
+                <a href="javascript:;">
+                    <script>document.write(JSON.parse($.cookie("adminInfo")).name)</script></a>
                 <dl class="layui-nav-child">
                     <!-- 二级菜单 -->
                     <dd>
@@ -83,7 +84,7 @@
                                 <cite>用户列表</cite></a>
                         </li>
                         <li>
-                            <a onclick="xadmin.add_tab('封禁用户列表','welcome1.html')">
+                            <a onclick="xadmin.add_tab('封禁用户列表','user-list-disable.html')">
                                 <i class="iconfont">&#xe6a7;</i>
                                 <cite>封禁用户列表</cite></a>
                         </li>
