@@ -71,7 +71,7 @@
                 </tr>
               </thead>
               <tbody class="userInfo">
-                <tr>
+                <!-- <tr>
                   <td>1</td>
                   <td>2647127237</td>
                   <td>宋康杰</td>
@@ -83,20 +83,20 @@
                     <span onclick="member_stop(this,'${item.id}')" title="停用"
                       class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">已停用</span>
                   </td>
-                </tr>
+                </tr> -->
               </tbody>
             </table>
           </div>
           <div class="layui-card-body ">
             <div class="page">
-              <div>
+              <!-- <div>
                 <a class="prev" href="javascript:;" onclick="">&lt;&lt;</a>
                 <span class="current">1</span>
                 <a class="num" href="javascript:;" onclick="">2</a>
                 <a class="num" href="javascript:;" onclick="">3</a>
                 <a class="num" href="javascript:;" onclick="">4</a>
                 <a class="next" href="javascript:;" onclick="">&gt;&gt;</a>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -133,6 +133,9 @@
       success: function (data) {
         replace(data.list);   // 刷新用户列表
         page(no, data.navigatepageNums);   // 刷新导航
+      },
+      error:function(){
+        $(".userInfo").html("你没有权限")
       }
     });
   }
@@ -187,7 +190,7 @@
         <span class="current">${item}</span>`
       } else {
         pageHtml += `
-        <a class="num" href="javascript:;" onclick="pageClick(this)">${item}</a>`
+        <a class="num" href="#" onclick="pageClick(this)">${item}</a>`
       }
     });
     pageHtml += `

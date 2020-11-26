@@ -435,7 +435,6 @@ table th, table td {
     }
     .page-content .layui-tab-content .layui-tab-item{
         -webkit-overflow-scrolling: touch; 
-        overflow-y: scroll; 
     }
     .x-so input.layui-input{
         width: 100%;
