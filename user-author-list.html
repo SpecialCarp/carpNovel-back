@@ -73,7 +73,7 @@
                   <th>性别</th>
                   <th>邮箱</th>
                   <th>头像</th>
-                  <th>状态</th>
+                  <th>作品</th>
                 </tr>
               </thead>
               <tbody class="userInfo">
@@ -86,8 +86,8 @@
                   <td>123@123.com</td>
                   <td><img src="a.jpg" /></td>
                   <td class="td-status">
-                    <span onclick="member_stop(this,'${item.id}')" title="停用"
-                      class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">已停用</span>
+                    <span onclick="xadmin.open('添加用户','./member-add.html',600,400)"
+                      class="layui-btn layui-btn-normal layui-btn-mini">查看</span>
                   </td>
                 </tr> -->
               </tbody>
@@ -132,7 +132,7 @@
   function findUser(no, name, ccount,start,end) {
     // console.log(no);
     $.ajax({
-      url: `http://127.0.0.1/carpNovel/back/user/findUser`,
+      url: `http://127.0.0.1/carpNovel/back/user/findAuthor`,
       data: {
         pageNo: no,      // 页数
         username: name,  // 用户名
@@ -143,13 +143,12 @@
       contentType: "json",
       type: "get",
       success: function (data) {
-        console.log(data);
         replace(data.list);   // 刷新用户列表
         page(no, data.navigatepageNums);   // 刷新导航
       },
-      error: function () {
-        $(".userInfo").html("你没有权限")
-      }
+    //   error:function(){
+    //     $(".userInfo").html("你没有权限")
+    //   }
     });
   }
   // 先查第一页
@@ -174,17 +173,10 @@
       }
       userInfoHtml += `<td>${item.email}</td>
                       <td><img src="${item.avatar}"></td>`
-      if (item.status) {
         userInfoHtml += `<td class="td-status">
-                              <span onclick="member_stop(this,'${item.id}')" title="启用" class="layui-btn layui-btn-normal layui-btn-mini">已启用</span>
+                              <span onclick="xadmin.open('添加用户','./book-user-list.html?u_id=${item.id}',600,400)" class="layui-btn layui-btn-normal layui-btn-mini">作品</span>
                             </td>
                           </tr>`
-      } else {
-        userInfoHtml += `<td class="td-status">
-                                <span onclick="member_stop(this,'${item.id}')" title="停用" class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">已停用</span>
-                              </td>
-                            </tr>`
-      }
     });
     $(".userInfo").html(userInfoHtml);
   }
@@ -215,69 +207,4 @@
     // page($(pa).html(),pageNums)
     findUser($(pa).html(), user_name, a_ccount)
   }
-</script>
-<!-- 根据id禁用或启用用户 -->
-<script>
-  function disableUser(u_id) {
-    // console.log(u_id);
-    $.ajax({
-      url: `http://127.0.0.1/carpNovel/back/user/disableUser`,
-      data: {
-        id: u_id
-      },
-      contentType: "",
-      type: "get",
-      success: function (data) {
-        // console.log(data);
-      }
-    })
-  }
-</script>
-<script>
-  /*用户-停用*/
-  function member_stop(obj, id) {
-    if ($(obj).attr('title') == '启用') {
-      layer.confirm('确认要停用吗？', function (index) {
-        //发异步把用户状态进行更改
-        $(obj).attr('title', '停用')
-        // TODO: 未能解决异步判断问题
-        disableUser(id);
-        $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
-        layer.msg('已停用!', { icon: 5, time: 1000 });
-      });
-    } else {
-      layer.confirm('确认要启用吗？', function (index) {
-        $(obj).attr('title', '启用')
-        disableUser(id);
-        $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
-        layer.msg('已启用!', { icon: 6, time: 1000 });
-      });
-    }
-  }
-</script>
-<script>
-  layui.use(['laydate', 'form'], function () {
-    var laydate = layui.laydate;
-    var form = layui.form;
-    // 监听全选
-    form.on('checkbox(checkall)', function (data) {
-
-      if (data.elem.checked) {
-        $('tbody input').prop('checked', true);
-      } else {
-        $('tbody input').prop('checked', false);
-      }
-      form.render('checkbox');
-    });
-
-    //执行一个laydate实例
-    laydate.render({
-      elem: '#start' //指定元素
-    });
-
-    //执行一个laydate实例
-    laydate.render({
-      elem: '#end' //指定元素
-    });
-  });
 </script>

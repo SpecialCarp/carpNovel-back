@@ -52,6 +52,12 @@
                   class="layui-input">
               </div>
               <div class="layui-inline layui-show-xs-block">
+                <input class="layui-input" autocomplete="off" placeholder="开始日" name="start" id="start">
+              </div>
+              <div class="layui-inline layui-show-xs-block">
+                <input class="layui-input" autocomplete="off" placeholder="截止日" name="end" id="end">
+              </div>
+              <div class="layui-inline layui-show-xs-block">
                 <button class="layui-btn"><i class="layui-icon">&#xe615;</i></button>
               </div>
             </div>
@@ -108,25 +114,31 @@
 </html>
 <!-- 搜索事件 -->
 <script>
-  var user_name = "";
-  var a_ccount = "";
+  var user_name = null;
+  var a_ccount = null;
+  var old_create = null;
+  var new_create = null;
   $(".layui-btn").click(function () {
     user_name = $("#username").val();
     a_ccount = $("#account").val();
+    old_create = $("#start").val()+" 00:00:00";
+    new_create = $("#end").val()+" 00:00:00";
     // console.log(user_name +","+ a_ccount);
-    findUser(1, user_name, a_ccount);
+    findUser(1, user_name, a_ccount,old_create,new_create);
   });
 </script>
 <!-- 根据条件查询所有被禁用用户 -->
 <script>
-  function findUser(no, name, ccount) {
+  function findUser(no, name, ccount,start,end) {
     // console.log(no);
     $.ajax({
-      url: `http://127.0.0.1/carpNovel/back/user/findDisableUserAll`,
+      url: `http://127.0.0.1/carpNovel/back/user/findDisableUser`,
       data: {
         pageNo: no,      // 页数
         username: name,  // 用户名
-        account: ccount  // 账号
+        account: ccount, // 账号
+        oldCreate:start,
+        newCreate:end,
       },
       contentType: "json",
       type: "get",
@@ -140,7 +152,7 @@
     });
   }
   // 先查第一页
-  findUser(1, "", "")
+  findUser(1, "", "","","")
 </script>
 <!-- 刷新用户列表 -->
 <script>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/font.css">
+    <link rel="stylesheet" href="./css/xadmin.css">
+    <script src="./lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/xadmin.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/jquery.cookie.js"></script>
+    <script src="./js/common.js"></script>
+</head>
+
+<body>
+    <div class="layui-card-body layui-table-body layui-table-main">
+        <table class="layui-table layui-form">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>书名</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody class="bookInfo">
+                <!-- <tr>
+                    <td>1</td>
+                    <td>蛊真人</td>
+                    <td>发布</td>
+                </tr> -->
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    function findBookByUID(u_id) {
+        $.ajax({
+            url: `http://127.0.0.1/carpNovel/back/book/findBookByUId`,
+            data: {
+                u_id:u_id
+            },
+            contentType: "json",
+            type: "get",
+            success: function (data) {
+                replace(data);
+            },
+            //   error:function(){
+            //     $(".userInfo").html("你没有权限")
+            //   }
+        });
+    }
+    findBookByUID(decodeURIComponent(location.search.slice(1).split("=")[1]));
+</script>
+<script>
+    function replace(data) {
+        var bookInfoHtml = "";
+        data.forEach((item, index) => {
+            bookInfoHtml += `<tr>
+                        <td>${index + 1}</td>
+                        <td>${item.title}</td>
+                        `
+            if (item.status == 1) {
+                console.log(1);
+                bookInfoHtml += `<td>发布</td>
+                            </tr>`
+            } else if (item.status == 0) {
+                bookInfoHtml += `<td>禁书</td>
+                            </tr>`
+            } else {
+                bookInfoHtml += `<td>待发布</td>
+                            </tr>`
+            }
+        });
+        $(".bookInfo").html(bookInfoHtml);
+    }
+    // var dta = [{ "id": 1, "title": "蛊真人", "avatar": "/a/c.png", "author": "蛊真人", "introducty": "这个上传人很懒，什么也没有留下", "score": 0.0, "user": null, "create": 1606619779000, "hits": 0, "status": 1, "classifies": null, "chapters": null }]
+    // replace(dta)
+</script>
+
+</html>

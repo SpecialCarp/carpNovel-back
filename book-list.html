@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+<head>
+    <meta charset="UTF-8">
+    <title>书籍列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="./css/font.css">
+    <link rel="stylesheet" href="./css/xadmin.css">
+    <script src="./lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/xadmin.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/jquery.cookie.js"></script>
+    <script src="./js/common.js"></script>
+    <script>
+        // 判断是否登陆
+        try {
+            adminInterceptor(JSON.parse($.cookie("adminInfo")).account, JSON.parse($.cookie("adminInfo")).password);
+        } catch (error) {
+            location.href = "./login.html";
+        }
+    </script>
+</head>
+
+<body>
+    <div class="x-nav">
+        <span class="layui-breadcrumb">
+            <a href="">首页</a>
+            <a href="">演示</a>
+            <a>
+                <cite>导航元素</cite></a>
+        </span>
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+            onclick="location.reload()" title="刷新">
+            <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i></a>
+    </div>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body ">
+                        <div class="layui-form layui-col-space5">
+                            <div class="layui-inline layui-show-xs-block">
+                                <input type="text" id="account" name="username" placeholder="请输入书名" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <input type="text" id="username" name="username" placeholder="请输入作者" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <button class="layui-btn"><i class="layui-icon">&#xe615;</i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-card-body layui-table-body layui-table-main">
+                        <table class="layui-table layui-form">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>书名</th>
+                                    <th>作者</th>
+                                    <th>简介</th>
+                                    <th>封面</th>
+                                    <th>评分</th>
+                                    <th>上传人</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bookInfo">
+                                <!-- <tr>
+                  <td>1</td>
+                  <td>2647127237</td>
+                  <td>宋康杰</td>
+                  <td>12345678901</td>
+                  <td>男</td>
+                  <td>123@123.com</td>
+                  <td><img src="a.jpg" /></td>
+                  <td class="td-status">
+                    <span onclick="member_stop(this,'${item.id}')" title="停用"
+                      class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">已停用</span>
+                  </td>
+                </tr> -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="layui-card-body ">
+                        <div class="page">
+                            <!-- <div>
+                <a class="prev" href="javascript:;" onclick="">&lt;&lt;</a>
+                <span class="current">1</span>
+                <a class="num" href="javascript:;" onclick="">2</a>
+                <a class="num" href="javascript:;" onclick="">3</a>
+                <a class="num" href="javascript:;" onclick="">4</a>
+                <a class="next" href="javascript:;" onclick="">&gt;&gt;</a>
+              </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<!-- 搜索事件
+<script>
+    var user_name = null;
+    var a_ccount = null;
+    var old_create = null;
+    var new_create = null;
+    $(".layui-btn").click(function () {
+        user_name = $("#username").val();
+        a_ccount = $("#account").val();
+        old_create = $("#start").val() + " 00:00:00";
+        new_create = $("#end").val() + " 00:00:00";
+        // console.log(user_name +","+ a_ccount);
+        findUser(1, user_name, a_ccount, old_create, new_create);
+    });
+</script> -->
+<!-- 根据条件查询所有书籍 -->
+<script>
+    function findBook(no, name, ccount, start, end) {
+        // console.log(no);
+        $.ajax({
+            url: `http://127.0.0.1/carpNovel/back/book/findBook`,
+            // data: {
+            //     pageNo: no,      // 页数
+            //     username: name,  // 用户名
+            //     account: ccount, // 账号
+            //     oldCreate: start,
+            //     newCreate: end,
+            // },
+            contentType: "json",
+            type: "get",
+            success: function (data) {
+                console.log(data);
+                replace(data.list);   // 刷新书籍列表
+                page(no, data.navigatepageNums);   // 刷新导航
+            },
+            error: function () {
+                $(".bookInfo").html("你没有权限")
+            }
+        });
+    }
+    // 先查第一页
+    findBook(1, "", "", "", "")
+</script>
+<!-- 刷新书籍列表 -->
+<script>
+    function replace(data) {
+        var bookInfoHtml = "";
+        data.forEach((item, index) => {
+            bookInfoHtml += `<tr>
+                                <td>${index + 1}</td>
+                                <td>${item.title}</td>
+                                <td>${item.author}</td>
+                                <td>${item.introducty}</td>
+                                <td><img src="${item.avatar}"></td>
+                                <td>${item.score}</td>
+                                <td>${item.user.username}</td>`
+            if (item.status) {
+                bookInfoHtml += `<td class="td-status">
+                                <span onclick="member_stop(this,'${item.id}')" title="启用" class="layui-btn layui-btn-normal layui-btn-mini">已启用</span>
+                              </td>
+                            </tr>`
+            } else {
+                bookInfoHtml += `<td class="td-status">
+                                  <span onclick="member_stop(this,'${item.id}')" title="停用" class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">已停用</span>
+                                </td>
+                              </tr>`
+            }
+        });
+        $(".bookInfo").html(bookInfoHtml);
+    }
+    // var dta=[{"id":1,"username":"宋康杰","account":"2647127237","password":null,"iphone":"12345678901","sex":false,"email":"2647127237@qq.com","avatar":"/a/b.jpg","create":1605662466000,"status":false,"author":null}]
+    // replace(dta)
+</script>
+<!-- 刷新导航 -->
+<script>
+    // var pageNums = [1,2,3,4]
+    function page(no, navigatepageNums) {
+        var pageHtml = `<div>
+                  `
+        navigatepageNums.forEach((item) => {
+            if (item == no) {
+                pageHtml += `
+          <span class="current">${item}</span>`
+            } else {
+                pageHtml += `
+          <a class="num" href="#" onclick="pageClick(this)">${item}</a>`
+            }
+        });
+        pageHtml += `
+                </div>`
+        $(".page").html(pageHtml);
+    }
+    // page(1,pageNums);
+    function pageClick(pa) {
+        // page($(pa).html(),pageNums)
+        findUser($(pa).html(), user_name, a_ccount)
+    }
+</script>
+<!-- 根据id禁用或启用用户
+<script>
+    function disableUser(u_id) {
+      // console.log(u_id);
+      $.ajax({
+        url: `http://127.0.0.1/carpNovel/back/user/disableUser`,
+        data: {
+          id: u_id
+        },
+        contentType: "",
+        type: "get",
+        success: function (data) {
+          // console.log(data);
+        }
+      })
+    }
+  </script> -->
+<script>
+    /*用户-停用*/
+    function member_stop(obj, id) {
+        if ($(obj).attr('title') == '启用') {
+            layer.confirm('确认要停用吗？', function (index) {
+                //发异步把用户状态进行更改
+                $(obj).attr('title', '停用')
+                // TODO: 未能解决异步判断问题
+                disableUser(id);
+                $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                layer.msg('已停用!', { icon: 5, time: 1000 });
+            });
+        } else {
+            layer.confirm('确认要启用吗？', function (index) {
+                $(obj).attr('title', '启用')
+                disableUser(id);
+                $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                layer.msg('已启用!', { icon: 6, time: 1000 });
+            });
+        }
+    }
+</script>
+<script>
+    layui.use(['laydate', 'form'], function () {
+        var laydate = layui.laydate;
+        var form = layui.form;
+        // 监听全选
+        form.on('checkbox(checkall)', function (data) {
+
+            if (data.elem.checked) {
+                $('tbody input').prop('checked', true);
+            } else {
+                $('tbody input').prop('checked', false);
+            }
+            form.render('checkbox');
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+</script>
