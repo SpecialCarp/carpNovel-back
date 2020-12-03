@@ -41,21 +41,6 @@
         <div class="layui-row layui-col-space15">
             <div class="layui-col-md12">
                 <div class="layui-card">
-                    <div class="layui-card-body ">
-                        <div class="layui-form layui-col-space5">
-                            <div class="layui-inline layui-show-xs-block">
-                                <input type="text" id="author" name="username" placeholder="请输入书名" autocomplete="off"
-                                    class="layui-input">
-                            </div>
-                            <div class="layui-inline layui-show-xs-block">
-                                <input type="text" id="bookName" name="username" placeholder="请输入作者" autocomplete="off"
-                                    class="layui-input">
-                            </div>
-                            <div class="layui-inline layui-show-xs-block">
-                                <button class="layui-btn"><i class="layui-icon">&#xe615;</i></button>
-                            </div>
-                        </div>
-                    </div>
                     <div class="layui-card-body layui-table-body layui-table-main">
                         <table class="layui-table layui-form">
                             <thead>
@@ -65,8 +50,8 @@
                                     <th>作者</th>
                                     <th>简介</th>
                                     <th>封面</th>
-                                    <th>评分</th>
                                     <th>上传人</th>
+                                    <th>举报内容</th>
                                     <th>章节目录</th>
                                     <th>状态</th>
                                 </tr>
@@ -107,6 +92,7 @@
 </body>
 
 </html>
+<!-- 章节目录 -->
 <script>
     function findChpater(b_id){
         $.ajax({
@@ -125,42 +111,26 @@
         })
     }
 </script>
-<!-- 搜索事件 -->
-<script>
-    var author = null;
-    var bookName = null;
-    $(".layui-btn").click(function () {
-        author = $("#author").val();
-        bookName = $("#bookName").val();
-        // console.log(user_name +","+ a_ccount);
-        findBook(1, author, bookName);
-    });
-</script>
 <!-- 根据条件查询所有书籍 -->
 <script>
-    function findBook(no, author, bookName) {
+    function findBook() {
         // console.log(no);
         $.ajax({
-            url: `http://127.0.0.1/carpNovel/back/book/findBook`,
+            url: `http://127.0.0.1/carpNovel/back/book/findBookReports`,
             data: {
-                pageNo: no,
-                author: author,
-                title: bookName
+                status:1
             },
-            contentType: "json",
-            type: "get",
+            contentType: "",
+            type: "post",
             success: function (data) {
                 console.log(data);
-                replace(data.list);   // 刷新书籍列表
-                page(no, data.navigatepageNums);   // 刷新导航
+                replace(data);   // 刷新书籍列表
             },
             error: function () {
                 $(".bookInfo").html("你没有权限")
             }
         });
     }
-    // 先查第一页
-    findBook(1, "", "", "", "")
 </script>
 <!-- 刷新书籍列表 -->
 <script>
@@ -169,19 +139,20 @@
         data.forEach((item, index) => {
             bookInfoHtml += `<tr>
                                 <td>${index + 1}</td>
-                                <td>${item.title}</td>
-                                <td>${item.author}</td>
-                                <td>${item.introducty}</td>
-                                <td><img src="${item.avatar}"></td>
-                                <td>${item.score}</td>
+                                <td>${item.book.title}</td>
+                                <td>${item.book.author}</td>
+                                <td>${item.book.introducty}</td>
+                                <td><img src="${item.book.avatar}"></td>
                                 <td>${item.user.username}</td>
+                                <td>${item.content}</td>
                                 <td>
-                                  <span onclick="findChpater(${item.id})" class="layui-btn layui-btn-normal layui-btn-mini">章节目录</span>
-                                </td>`
-            if (item.status) {
+                                  <span onclick="findChpater(${item.book.id})" class="layui-btn layui-btn-normal layui-btn-mini">章节目录</span>
+                                </td>
+                                `
+            if (item.book.status) {
                 bookInfoHtml += `<td class="td-status">
-                                <span onclick="member_stop(this,'${item.user.id}','${item.id}')" title="启用" class="layui-btn layui-btn-normal layui-btn-mini">正常</span>
-                              </td>
+                                    <span onclick="member_stop(this,'${item.user.id}','${item.id}')" title="启用" class="layui-btn layui-btn-normal layui-btn-mini">正常</span>
+                                </td>
                             </tr>`
             } else {
                 bookInfoHtml += `<td class="td-status">
@@ -195,40 +166,7 @@
     // var dta=[{"id":1,"username":"宋康杰","account":"2647127237","password":null,"iphone":"12345678901","sex":false,"email":"2647127237@qq.com","avatar":"/a/b.jpg","create":1605662466000,"status":false,"author":null}]
     // replace(dta)
 </script>
-<!-- 刷新导航 -->
-<script>
-    // var pageNums = [1,2,3,4]
-    function page(no, navigatepageNums) {
-        var pageHtml = `<div>
-                    <a class="prev" href="#" onclick="pageClick(this)">&lt;&lt;</a>
-                  `
-        navigatepageNums.forEach((item) => {
-            if (item == no) {
-                pageHtml += `
-          <span class="current">${item}</span>`
-            } else {
-                pageHtml += `
-          <a class="num" href="#" onclick="pageClick(this)">${item}</a>`
-            }
-        });
-        pageHtml += `
-                    <a class="next" href="#" onclick="pageClick(this)">&gt;&gt;</a>
-                </div>`
-        $(".page").html(pageHtml);
-    }
-    // page(1,pageNums);
-    function pageClick(pa) {
-        // page($(pa).html(),pageNums)
-        if ($(pa).html() == "&lt;&lt;") {
-            findBook(1, author, bookName)
-        } else if ($(pa).html() == "&gt;&gt;") {
-            findBook(9999999, author, bookName)
-        } else {
-            findBook($(pa).html(), author, bookName)
-        }
-    }
-</script>
-<!-- 根据id禁用或启用用户 -->
+<!-- 根据id禁用或启用书籍 -->
 <script>
     function disableBook(u_id, b_id,status,reason) {
         console.log(b_id);
@@ -254,33 +192,31 @@
     function member_stop(obj, u_id, b_id) {
         console.log(u_id, b_id);
             console.log($(obj).attr('title'))
-        if ($(obj).attr('title') == '启用') {
+        if ($(obj).attr('title') == '待发布') {
+            console.log('a');
             layer.open({
-                title:"备注",
-                content: '<input id="reason" type="text">'
+                title:"处理",
+                content: `确认：<select id="status">
+                            <option value="1">发布</option>
+                            <option value="2" selected>待发布</option>
+                            <option value="3">打回</option>
+                        </select><br/>
+                        备注：<input id="reason" type="text">`
                 , btn: ['取消', '确认']
                 , btn2: function (index, layero) {
                     // alert($("#reason").val())
-                    disableBook(u_id, b_id,0,$("#reason").val());
                     //return false 开启该代码可禁止点击该按钮关闭
-                    $(obj).attr('title', '停用')
-                    $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('禁书');
-                    layer.msg('已封禁!', { icon: 5, time: 1000 });
-                }, no: function (index, layero) {
-                }
-            });
-        } else {
-            layer.open({
-                title:"备注",
-                content: '<input id="reason" type="text">'
-                , btn: ['取消', '确认']
-                , btn2: function (index, layero) {
-                    // alert($("#reason").val())
-                    disableBook(u_id, b_id,1,$("#reason").val());
-                    //return false 开启该代码可禁止点击该按钮关闭
-                    $(obj).attr('title', '启用')
-                    $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('正常');
-                    layer.msg('已开封!', { icon: 6, time: 1000 });
+                    if($("#status").val()==1){
+                        disableBook(u_id, b_id,$("#status").val(),$("#reason").val());
+                        $(obj).attr('title', '已发布')
+                        $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已发布');
+                        layer.msg('已发布!', { icon: 6, time: 1000 });
+                    }else if($("#status").val()==3){
+                        disableBook(u_id, b_id,$("#status").val(),$("#reason").val());
+                        $(obj).attr('title', '已打回')
+                        $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已打回');
+                        layer.msg('已打回!', { icon: 5, time: 1000 });
+                    }
                 }, no: function (index, layero) {
                 }
             });

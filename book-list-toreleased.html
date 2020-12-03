@@ -145,7 +145,8 @@
             data: {
                 pageNo: no,
                 author: author,
-                title: bookName
+                title: bookName,
+                status: 2
             },
             contentType: "json",
             type: "get",
@@ -177,18 +178,11 @@
                                 <td>${item.user.username}</td>
                                 <td>
                                   <span onclick="findChpater(${item.id})" class="layui-btn layui-btn-normal layui-btn-mini">章节目录</span>
-                                </td>`
-            if (item.status) {
-                bookInfoHtml += `<td class="td-status">
-                                <span onclick="member_stop(this,'${item.user.id}','${item.id}')" title="启用" class="layui-btn layui-btn-normal layui-btn-mini">正常</span>
-                              </td>
-                            </tr>`
-            } else {
-                bookInfoHtml += `<td class="td-status">
-                                  <span onclick="member_stop(this,'${item.user.id}','${item.id}')" title="停用" class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">禁书</span>
                                 </td>
-                              </tr>`
-            }
+                                <td class="td-status">
+                                    <span onclick="member_stop(this,'${item.user.id}','${item.id}')" title="待发布" class="layui-btn layui-btn-normal layui-btn-mini">待发布</span>
+                                </td>
+                            </tr>`
         });
         $(".bookInfo").html(bookInfoHtml);
     }
@@ -254,33 +248,31 @@
     function member_stop(obj, u_id, b_id) {
         console.log(u_id, b_id);
             console.log($(obj).attr('title'))
-        if ($(obj).attr('title') == '启用') {
+        if ($(obj).attr('title') == '待发布') {
+            console.log('a');
             layer.open({
-                title:"备注",
-                content: '<input id="reason" type="text">'
+                title:"处理",
+                content: `确认：<select id="status">
+                            <option value="1">发布</option>
+                            <option value="2" selected>待发布</option>
+                            <option value="3">打回</option>
+                        </select><br/>
+                        备注：<input id="reason" type="text">`
                 , btn: ['取消', '确认']
                 , btn2: function (index, layero) {
                     // alert($("#reason").val())
-                    disableBook(u_id, b_id,0,$("#reason").val());
                     //return false 开启该代码可禁止点击该按钮关闭
-                    $(obj).attr('title', '停用')
-                    $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('禁书');
-                    layer.msg('已封禁!', { icon: 5, time: 1000 });
-                }, no: function (index, layero) {
-                }
-            });
-        } else {
-            layer.open({
-                title:"备注",
-                content: '<input id="reason" type="text">'
-                , btn: ['取消', '确认']
-                , btn2: function (index, layero) {
-                    // alert($("#reason").val())
-                    disableBook(u_id, b_id,1,$("#reason").val());
-                    //return false 开启该代码可禁止点击该按钮关闭
-                    $(obj).attr('title', '启用')
-                    $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('正常');
-                    layer.msg('已开封!', { icon: 6, time: 1000 });
+                    if($("#status").val()==1){
+                        disableBook(u_id, b_id,$("#status").val(),$("#reason").val());
+                        $(obj).attr('title', '已发布')
+                        $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已发布');
+                        layer.msg('已发布!', { icon: 6, time: 1000 });
+                    }else if($("#status").val()==3){
+                        disableBook(u_id, b_id,$("#status").val(),$("#reason").val());
+                        $(obj).attr('title', '已打回')
+                        $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已打回');
+                        layer.msg('已打回!', { icon: 5, time: 1000 });
+                    }
                 }, no: function (index, layero) {
                 }
             });
