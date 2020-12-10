@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="./css/font.css">
+    <link rel="stylesheet" href="./css/xadmin.css">
+    <script src="./lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/xadmin.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/jquery.cookie.js"></script>
+    <script src="./js/common.js"></script>
+    <script>
+        // 判断是否登陆
+        try {
+            adminInterceptor(JSON.parse($.cookie("adminInfo")).account, JSON.parse($.cookie("adminInfo")).password);
+        } catch (error) {
+            location.href = "./login.html";
+        }
+    </script>
+</head>
+
+<body>
+    <div class="x-nav">
+        <span class="layui-breadcrumb">
+            <a href="">首页</a>
+            <a href="">演示</a>
+            <a>
+                <cite>导航元素</cite></a>
+        </span>
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+            onclick="location.reload()" title="刷新">
+            <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i></a>
+    </div>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body ">
+                        <div class="layui-form layui-col-space5">
+                            <div class="layui-inline layui-show-xs-block">
+                                <input type="text" id="account" name="username" placeholder="请输入账号" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <input type="text" id="name" name="name" placeholder="请输入用户名" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <select id="access" name="cateid">
+                                    <option selected value="0">无</option>
+                                    <option value="1">用户管理员</option>
+                                    <option value="2">书籍管理员</option>
+                                    <option value="3">书单管理员</option>
+                                    <option value="4">留言管理员</option>
+                                </select>
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <input class="layui-input" autocomplete="off" placeholder="开始日" name="start" id="start">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <input class="layui-input" autocomplete="off" placeholder="截止日" name="end" id="end">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <button class="layui-btn"><i class="layui-icon">&#xe615;</i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-card-body layui-table-body layui-table-main">
+                        <table class="layui-table layui-form">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>账号</th>
+                                    <th>所属人</th>
+                                    <th>手机号</th>
+                                    <th>权限</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody class="userInfo">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="layui-card-body ">
+                        <div class="page">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<!-- 搜索事件 -->
+<script>
+    var admin_name = null;
+    var a_ccount = null;
+    var old_create = null;
+    var new_create = null;
+    var access = 0;
+    $(".layui-btn").click(function () {
+        user_name = $("#name").val();
+        a_ccount = $("#account").val();
+        old_create = $("#start").val() + " 00:00:00";
+        new_create = $("#end").val() + " 00:00:00";
+        access = $("#access").val();
+        findAdmin(1, admin_name, a_ccount, old_create, new_create, access);
+    });
+</script>
+<!-- 根据条件查询所有用户 -->
+<script>
+    function findAdmin(no, name, ccount, start, end, access) {
+        // console.log(no);
+        $.ajax({
+            url: `http://127.0.0.1/carpNovel/back/admin/findAll`,
+            data: {
+                "pageNo": no,
+                name: name,
+                "account": ccount,
+                "access": access,
+                "oldCreate": start,
+                "newCreate": end
+            },
+            contentType: "json",
+            type: "get",
+            success: function (data) {
+                console.log(data);
+                replace(data.list);   // 刷新用户列表
+                page(no, data.navigatepageNums);   // 刷新导航
+            },
+            error: function () {
+                $(".userInfo").html("你没有权限")
+            }
+        });
+    }
+    // 先查第一页
+    findAdmin(1, "", "", "", "")
+</script>
+<!-- 刷新管理员列表 -->
+<script>
+    function replace(data) {
+        var userInfoHtml = "";
+        data.forEach((item, index) => {
+            userInfoHtml += `<tr>
+                          <td>${index + 1}</td>
+                          <td>${item.account}</td>
+                          <td>${item.name}</td>
+                          <td>${item.iphone}</td>
+                          `
+                          if (item.userAccess) {
+                userInfoHtml += `<td>用户管理</td>`
+            } else if (item.bookAccess) {
+                userInfoHtml += `<td>书籍管理<td>`
+            } else if (item.booklistAccess) {
+                userInfoHtml += `<td>书单管理<td>`
+            } else if (item.commentAccess) {
+                userInfoHtml += `<td>留言管理<td>`
+            } else {
+                userInfoHtml += `<td>没有权限<td>`
+            }
+            if (item.status) {
+                userInfoHtml += `<td class="td-status">
+                              <span onclick="member_stop(this,'${item.id}')" title="启用" class="layui-btn layui-btn-normal layui-btn-mini">已启用</span>
+                            </td>
+                          </tr>`
+            } else {
+                userInfoHtml += `<td class="td-status">
+                                <span onclick="member_stop(this,'${item.id}')" title="停用" class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">已停用</span>
+                              </td>
+                            </tr>`
+            }
+        });
+        $(".userInfo").html(userInfoHtml);
+    }
+    // var dta=[{"id":1,"username":"宋康杰","account":"2647127237","password":null,"iphone":"12345678901","sex":false,"email":"2647127237@qq.com","avatar":"/a/b.jpg","create":1605662466000,"status":false,"author":null}]
+    // replace(dta)
+</script>
+<!-- 刷新导航 -->
+<script>
+    // var pageNums = [1,2,3,4]
+    function page(no, navigatepageNums) {
+        var pageHtml = `<div>
+                  `
+        navigatepageNums.forEach((item) => {
+            if (item == no) {
+                pageHtml += `
+          <span class="current">${item}</span>`
+            } else {
+                pageHtml += `
+          <a class="num" href="#" onclick="pageClick(this)">${item}</a>`
+            }
+        });
+        pageHtml += `
+                </div>`
+        $(".page").html(pageHtml);
+    }
+    // page(1,pageNums);
+    function pageClick(pa) {
+        // page($(pa).html(),pageNums)
+        findAdmin($(pa).html(), user_name, a_ccount)
+    }
+</script>
+<script>
+    layui.use(['laydate', 'form'], function () {
+        var laydate = layui.laydate;
+        var form = layui.form;
+        // 监听全选
+        form.on('checkbox(checkall)', function (data) {
+
+            if (data.elem.checked) {
+                $('tbody input').prop('checked', true);
+            } else {
+                $('tbody input').prop('checked', false);
+            }
+            form.render('checkbox');
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+</script>

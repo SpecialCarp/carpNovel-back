@@ -46,12 +46,10 @@
                             <thead>
                                 <tr>
                                     <th>序号</th>
-                                    <th>书名</th>
-                                    <th>作者</th>
-                                    <th>简介</th>
-                                    <th>上传人</th>
-                                    <th>举报内容</th>
-                                    <th>章节目录</th>
+                                    <th>留言者</th>
+                                    <th>留言</th>
+                                    <th>举报人</th>
+                                    <th>举报信息</th>
                                     <th>状态</th>
                                     <th>处理</th>
                                 </tr>
@@ -92,7 +90,7 @@
     function findBook() {
         // console.log(no);
         $.ajax({
-            url: `http://127.0.0.1/carpNovel/back/book/findBookReports`,
+            url: `http://127.0.0.1/carpNovel/back/comment/findReport`,
             data: {
                 status:true
             },
@@ -116,29 +114,24 @@
         data.forEach((item, index) => {
             bookInfoHtml += `<tr>
                                 <td>${index + 1}</td>
-                                <td>${item.book.title}</td>
-                                <td>${item.book.author}</td>
-                                <td>${item.book.introducty}</td>
+                                <td>${item.comment.user.username}</td>
+                                <td>${item.comment.content}</td>
                                 <td>${item.user.username}</td>
-                                <td>${item.content}</td>
-                                <td>
-                                  <span onclick="findChpater(${item.book.id})" class="layui-btn layui-btn-normal layui-btn-mini">章节目录</span>
-                                </td>
-                                `
-            if (item.book.status) {
+                                <td>${item.content}</td>`
+            if(item.comment.status){
                 bookInfoHtml += `<td class="td-statu">
-                                    <span class="layui-btn">正常</span>
+                                    <span class="layui-btn">可看</span>
                                 </td>`
-            } else {
+            }else{
                 bookInfoHtml += `<td class="td-statu">
-                                    <span class="layui-btn">禁书</span>
+                                    <span class="layui-btn">禁看</span>
                                 </td>`
             }
             bookInfoHtml += `
                                 <td class="td-status">
-                                  <span onclick="member_stop(this,'${item.user.id}','${item.book.id}','${item.id}')" title="未处理" class="layui-btn layui-btn-normal layui-btn-mini">处理</span>
+                                    <span onclick="member_stop(this,'${item.user.id}','${item.comment.id}','${item.id}','${item.comment.status}')" title="未处理" class="layui-btn layui-btn-normal layui-btn-mini">处理</span>
                                 </td>    
-                    </tr>`
+                            </tr>`
         });
         $(".bookInfo").html(bookInfoHtml);
     }
@@ -147,14 +140,13 @@
 </script>
 <!-- 根据id禁用或启用书籍 -->
 <script>
-    function disableBook(u_id, b_id,r_id,status,reason) {
-        console.log(b_id);
+    function disableComment(u_id, c_id,r_id,status,reason) {
         $.ajax({
-            url: `http://127.0.0.1/carpNovel/back/book/releasedBook`,
+            url: `http://127.0.0.1/carpNovel/back/comment/releasedComment`,
             data: {
                 a_id: 1,
                 u_id: u_id,
-                b_id: b_id,
+                c_id: c_id,
                 r_id: r_id,
                 statu: status,
                 reason: reason
@@ -169,30 +161,28 @@
 </script>
 <script>
     /*用户-停用*/
-    function member_stop(obj, u_id, b_id, r_id) {
+    function member_stop(obj, u_id, c_id, r_id,status) {
         if ($(obj).attr('title') == '未处理') {
             layer.open({
                 title:"处理",
                 content: `确认：<select id="status">
-                            <option value="">请选择</option>
+                            <option value="">不处理</option>
                             <option value="0" selected>禁用</option>
-                            <option value="1">启用</option>
                         </select><br/>
                         备注：<input id="reason" type="text">`
                 , btn: ['取消', '确认']
                 , btn2: function (index, layero) {
-                    if($("#status").val()==1){
-                        disableBook(u_id, b_id,r_id,$("#status").val(),$("#reason").val());
+                    console.log(u_id, c_id,r_id,$("#status").val(),$("#reason").val());
+                    if($("#status").val()==0){
+                        disableComment(u_id, c_id,r_id,$("#status").val(),$("#reason").val());
                         $(obj).attr('title', '已处理')
                         $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已处理');
-                        $(obj).parents("tr").find(".td-statu").find('span').html('正常');
-                        layer.msg('已启用!', { icon: 6, time: 1000 });
-                    }else if($("#status").val()==0){
-                        disableBook(u_id, b_id,r_id,$("#status").val(),$("#reason").val());
-                        $(obj).attr('title', '已处理')
-                        $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已处理');
-                        $(obj).parents("tr").find(".td-statu").find('span').html('禁书');
+                        $(obj).parents("tr").find(".td-statu").find('span').html('禁看');
                         layer.msg('已禁用!', { icon: 5, time: 1000 });
+                    }else{
+                        disableComment(u_id, c_id,r_id,status,$("#reason").val());
+                        $(obj).attr('title', '已处理')
+                        $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已处理');
                     }
                 }, no: function (index, layero) {
                 }
